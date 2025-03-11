@@ -28,7 +28,6 @@ $sql = "
         g.gig_cryptic,
         g.machine_brand,
         g.appliance_type,
-        
         g.machine_id,
         g.model_number,
         g.serial_number,
