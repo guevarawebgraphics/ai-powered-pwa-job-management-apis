@@ -1,0 +1,30 @@
+# Store API Key securely in the environment
+SetEnv API_KEY ri001GUAgApi030425
+
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Allow requests ONLY from your domains, localhost, and your IP
+RewriteCond %{HTTP_REFERER} !^https://(www\.)?appliancerepairamerican\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https://api\.appliancerepairamerican\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https://theguild\.appliancerepairamerican\.com [NC]
+# Richard Guevara IP Address
+RewriteCond %{REMOTE_ADDR} !^49\.144\.200\.214$
+
+#Localhost
+RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
+RewriteRule .* - [F]
+
+# Block direct access to PHP files (except API calls from allowed domains)
+<FilesMatch "\.php$">
+    Require ip 127.0.0.1
+    Require ip 49.144.200.214
+    Require host appliancerepairamerican.com
+    Require host api.appliancerepairamerican.com
+    Require host theguild.appliancerepairamerican.com
+</FilesMatch>
+
+# Block access to .env and other sensitive files
+<FilesMatch "(\.env|config\.ini|\.htaccess|\.gitignore)$">
+    Require all denied
+</FilesMatch>

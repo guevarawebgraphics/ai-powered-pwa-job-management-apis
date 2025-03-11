@@ -1,0 +1,67 @@
+<?php
+// Assuming $dbConn is your existing mysqli connection
+// Example: $dbConn = new mysqli($host, $username, $password, $database);
+include '../../config.php';
+// Check connection
+if ($dbConn->connect_error) {
+    die("Connection failed: " . $dbConn->connect_error);
+}
+
+// Retrieve and sanitize the client_id from GET or POST
+//$client_id = isset($_GET['client_id']) ? intval($_GET['client_id']) : (isset($_POST['client_id']) ? intval($_POST['client_id']) : null);
+$client_id = 5;
+
+if ($client_id === null) {
+    die("No client ID provided.");
+}
+
+// Prepare the SQL statement
+$sql = "SELECT 
+            `client_id`, `client_name`, `insurance_plan`, `email`, `other_emails`,
+            `phone_number`, `other_phone_numbers`, `street_address`, `city`,
+            `zip_code`, `state`, `country`, `client_notes`, `previous_gig_history`,
+            `appliances_owned`, `maintenance_plan`, `payee_id`, `extra_field1`, `extra_field2`
+        FROM `clients` 
+        WHERE `client_id` = ?";
+
+// Initialize prepared statement
+$stmt = $dbConn->prepare($sql);
+if ($stmt === false) {
+    die("Prepare failed: " . $dbConn->error);
+}
+
+// Bind the parameter
+$stmt->bind_param("i", $client_id);
+
+// Execute the statement
+if (!$stmt->execute()) {
+    die("Execute failed: " . $stmt->error);
+}
+
+// Get the result
+$result = $stmt->get_result();
+
+// Check if client exists
+if ($result->num_rows === 0) {
+    echo "No client found with ID: " . htmlspecialchars($client_id);
+} else {
+    // Fetch associative array
+    $client = $result->fetch_assoc();
+
+    // Display client data (you can format this as needed)
+    echo "<h2>Client Details</h2>";
+    echo "<ul>";
+    foreach ($client as $key => $value) {
+        // Optionally format keys to be more readable
+        $formatted_key = ucwords(str_replace('_', ' ', $key));
+        echo "<li><strong>{$formatted_key}:</strong> " . htmlspecialchars($value) . "</li>";
+    }
+    echo "</ul>";
+}
+
+// Close the statement
+$stmt->close();
+
+// Close the connection (optional, if not reused)
+$dbConn->close();
+?>
