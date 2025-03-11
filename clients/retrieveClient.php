@@ -6,7 +6,7 @@ include '../config/dbConn.php';
 $expected_token = getenv('API_KEY'); // Store securely (e.g., in ENV variables)
 $headers = getallheaders();
 
-if (!isset($headers['Authorization']) || $headers['Authorization'] !== "Bearer $expected_token") {
+if (!isset($headers['Authorization']) || $headers['Authorization'] !== "Bearer $expected_token"  && $_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(403);
     echo json_encode(["error" => "Forbidden"]);
     exit;
@@ -17,10 +17,18 @@ if (!isset($headers['Authorization']) || $headers['Authorization'] !== "Bearer $
 if ($dbConn->connect_error) {
     die("Connection failed: " . $dbConn->connect_error);
 }
+// Retrieve techID from POST request
+$input_data = json_decode(file_get_contents("php://input"), true);
+if (!isset($input_data['client_id']) || !is_numeric($input_data['client_id'])) {
+    echo json_encode(["status" => "error", "message" => "Invalid or missing client_id"]);
+    exit;
+}
+
+
 
 // Retrieve and sanitize the client_id from GET or POST
-//$client_id = isset($_GET['client_id']) ? intval($_GET['client_id']) : (isset($_POST['client_id']) ? intval($_POST['client_id']) : null);
-$client_id = 5;
+$client_id = intval($input_data['client_id']);;
+// $client_id = 5;
 
 if ($client_id === null) {
     die("No client ID provided.");
