@@ -5,7 +5,7 @@ include '../config/dbConn.php';
 $expected_token = getenv('API_KEY'); // Store securely (e.g., in ENV variables)
 $headers = getallheaders();
 
-if (!isset($headers['Authorization']) || $headers['Authorization'] !== "Bearer $expected_token") {
+if (!isset($headers['Authorization']) || $headers['Authorization'] !== "Bearer $expected_token" && $_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(403);
     echo json_encode(["error" => "Forbidden"]);
     exit;
@@ -17,9 +17,18 @@ if ($dbConn->connect_error) {
             . $dbConn->connect_error);
 }
 
+
+// Retrieve techID from POST request
+$input_data = json_decode(file_get_contents("php://input"), true);
+if (!isset($input_data['techID']) || !is_numeric($input_data['techID'])) {
+    echo json_encode(["status" => "error", "message" => "Invalid or missing techID"]);
+    exit;
+}
+
 // Set the charset to utf8mb4 for proper encoding
 $dbConn->set_charset("utf8mb4");
-$technician = 6;
+// $technician = 6;
+$technician = intval($input_data['techID']);
 
 // SQL query to retrieve gig information along with related client, payee, and user data
 $sql = "
