@@ -19,7 +19,7 @@ if ($dbConn->connect_error) {
 
 // Set the charset to utf8mb4 for proper encoding
 $dbConn->set_charset("utf8mb4");
-$gigID = 6;
+$gigID = isset($_GET['gig_id']) ? intval($_GET['gig_id']) : 6;
 
 // SQL query to retrieve gig information along with related client, payee, and user data
 $sql = "
