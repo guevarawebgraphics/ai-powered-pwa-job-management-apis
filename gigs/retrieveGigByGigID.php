@@ -29,6 +29,7 @@ $sql = "
         g.machine_brand,
         g.appliance_type,
         g.model_number,
+        g.customer_input,
         g.serial_number,
         g.initial_issue,
         g.top_recommended_repairs,
