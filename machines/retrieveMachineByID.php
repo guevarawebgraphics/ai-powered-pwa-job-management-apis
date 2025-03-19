@@ -20,7 +20,8 @@ if ($dbConn->connect_error) {
 $dbConn->set_charset("utf8mb4");
 
 // Retrieve machine_id from GET parameter, defaulting to 1 if not provided
-$model_number = isset($_GET['modelNumber']) ? intval($_GET['modelNumber']) : 1;
+$model_number = isset($_GET['modelNumber']) ? $_GET['modelNumber'] : null;
+
 
 // Prepare the SQL query to retrieve machine details by machine_id
 $sql = "SELECT 
@@ -46,12 +47,14 @@ if (!$stmt) {
 }
 
 // Bind the machine_id parameter and execute the query
-$stmt->bind_param("i", $model_number);
+$stmt->bind_param("s", $model_number);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $machine = $result->fetch_assoc();
+
+    
     // Return JSON response with machine data
     echo json_encode(["status" => "success", "data" => $machine], JSON_PRETTY_PRINT);
 } else {
