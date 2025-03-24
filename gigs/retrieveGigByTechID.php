@@ -75,7 +75,7 @@ $sql = "
     FROM gigs g
     INNER JOIN clients c ON g.client_id = c.client_id
     INNER JOIN users u ON g.assigned_tech_id = u.id
-    WHERE g.assigned_tech_id = $technician
+    WHERE g.assigned_tech_id = $technician AND DATE(g.created_at) = CURDATE()
     ORDER BY g.start_datetime DESC
 ";
 
