@@ -13,23 +13,23 @@ if (!isset($headers['Authorization']) || $headers['Authorization'] !== "Bearer $
 
 // Check connection
 if ($dbConn->connect_error) {
-    die('Connect Error (' . $dbConn->connect_errno . ') '
-            . $dbConn->connect_error);
+    die('Connect Error (' . $dbConn->connect_errno . ') ' . $dbConn->connect_error);
 }
 
-// Retrieve techID from POST request
+// Retrieve input data
 $input_data = json_decode(file_get_contents("php://input"), true);
 if (!isset($input_data['techID']) || !is_numeric($input_data['techID'])) {
     echo json_encode(["status" => "error", "message" => "Invalid or missing techID"]);
     exit;
 }
 
-// Set the charset to utf8mb4 for proper encoding
+// Set charset
 $dbConn->set_charset("utf8mb4");
 
 $technician = intval($input_data['techID']);
+$date_filter = isset($input_data['date']) && !empty($input_data['date']) ? $input_data['date'] : null;
 
-// SQL query to retrieve gigs assigned to the technician
+// Adjust SQL query based on whether the date is provided
 $sql = "
     SELECT 
         g.gig_id,
@@ -75,12 +75,21 @@ $sql = "
     FROM gigs g
     INNER JOIN clients c ON g.client_id = c.client_id
     INNER JOIN users u ON g.assigned_tech_id = u.id
-    WHERE g.assigned_tech_id = $technician AND DATE(g.created_at) = CURDATE()
+    WHERE g.assigned_tech_id = ? " . ($date_filter ? "AND DATE(g.created_at) = ?" : "AND DATE(g.created_at) = CURDATE()") . "
     ORDER BY g.start_datetime DESC
 ";
 
-// Execute the query
-$result = $dbConn->query($sql);
+$stmt = $dbConn->prepare($sql);
+
+// Bind parameters dynamically
+if ($date_filter) {
+    $stmt->bind_param("is", $technician, $date_filter);
+} else {
+    $stmt->bind_param("i", $technician);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 $gigs = [];
 
 if ($result->num_rows > 0) {
@@ -89,24 +98,19 @@ if ($result->num_rows > 0) {
 
         // Query to get machine details
         $machine_sql = "SELECT * FROM machines WHERE model_number = ?";
-        $stmt = $dbConn->prepare($machine_sql);
-        $stmt->bind_param("s", $model_number);
-        $stmt->execute();
-        $machine_result = $stmt->get_result();
+        $stmt_machine = $dbConn->prepare($machine_sql);
+        $stmt_machine->bind_param("s", $model_number);
+        $stmt_machine->execute();
+        $machine_result = $stmt_machine->get_result();
 
         // Fetch machine details if available
-        if ($machine_result->num_rows > 0) {
-            $gig['machine'] = $machine_result->fetch_assoc();
-        } else {
-            $gig['machine'] = null;
-        }
+        $gig['machine'] = $machine_result->num_rows > 0 ? $machine_result->fetch_assoc() : null;
 
         $gigs[] = $gig;
     }
 
-    // Return JSON response with nested machines
     echo json_encode(["status" => "success", "data" => $gigs], JSON_PRETTY_PRINT);
 } else {
     echo json_encode(["status" => "error", "message" => "No gigs found."]);
 }
-
+?>
