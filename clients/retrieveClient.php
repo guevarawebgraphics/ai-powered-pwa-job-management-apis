@@ -22,11 +22,12 @@ if (!isset($input_data['client_id']) || !is_numeric($input_data['client_id'])) {
 
 $client_id = intval($input_data['client_id']);
 
+// Retrieve client details
 $sql = "SELECT 
             `client_id`, `client_name`, `insurance_plan`, `email`, `other_emails`,
             `phone_number`, `other_phone_numbers`, `street_address`, `city`,
-            `zip_code`, `state`, `country`, `client_notes`, `previous_gig_history`,
-            `appliances_owned`, `maintenance_plan`, `payee_id`, `extra_field1`, `extra_field2`
+            `zip_code`, `state`, `country`, `client_notes`, `appliances_owned`,
+            `maintenance_plan`, `payee_id`, `extra_field1`, `extra_field2`
         FROM `clients` 
         WHERE `client_id` = ?";
 
@@ -46,31 +47,22 @@ if ($result->num_rows === 0) {
 } else {
     $client = $result->fetch_assoc();
 
-    // Extract previous_gig_history (assuming comma-separated IDs)
-    $gig_ids = array_filter(array_map('intval', explode(',', $client['previous_gig_history'])));
-
-    // Initialize gigs array
-    $client['gigs'] = [];
-    if (!empty($gig_ids)) {
-        $placeholders = implode(',', array_fill(0, count($gig_ids), '?'));
-        $gig_query = "SELECT * FROM `gigs` WHERE `gig_id` IN ($placeholders)";
-
-        $gig_stmt = $dbConn->prepare($gig_query);
-        if ($gig_stmt === false) {
-            die("Prepare failed: " . $dbConn->error);
-        }
-
-        $types = str_repeat('i', count($gig_ids));
-        $gig_stmt->bind_param($types, ...$gig_ids);
-
-        if ($gig_stmt->execute()) {
-            $gig_result = $gig_stmt->get_result();
-            while ($gig = $gig_result->fetch_assoc()) {
-                $client['gigs'][] = $gig;
-            }
-        }
-        $gig_stmt->close();
+    // Retrieve gig history for this client
+    $gig_query = "SELECT * FROM `gigs` WHERE `client_id` = ? ORDER BY `start_datetime` DESC";
+    $gig_stmt = $dbConn->prepare($gig_query);
+    if ($gig_stmt === false) {
+        die("Prepare failed: " . $dbConn->error);
     }
+
+    $gig_stmt->bind_param("i", $client_id);
+    if ($gig_stmt->execute()) {
+        $gig_result = $gig_stmt->get_result();
+        $client['gigs'] = [];
+        while ($gig = $gig_result->fetch_assoc()) {
+            $client['gigs'][] = $gig;
+        }
+    }
+    $gig_stmt->close();
 
     // Extract appliances_owned (assuming comma-separated machine IDs)
     $machine_ids = array_filter(array_map('intval', explode(',', $client['appliances_owned'])));
