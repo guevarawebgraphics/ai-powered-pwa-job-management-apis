@@ -53,11 +53,11 @@ $time_ended = $gig['time_ended'];
 
 if (is_null($time_started)) {
     // If time_started is null, update it with the current timestamp
-    $updateSql = "UPDATE gigs SET time_started = NOW() WHERE gig_id = ?";
+    $updateSql = "UPDATE gigs SET time_started = NOW(), gig_complete = 1 WHERE gig_id = ?";
     $message = "Gig has been successfully started.";
 } elseif (!is_null($time_started) && is_null($time_ended)) {
     // If time_started is set and time_ended is null, update time_ended
-    $updateSql = "UPDATE gigs SET time_ended = NOW() WHERE gig_id = ?";
+    $updateSql = "UPDATE gigs SET time_ended = NOW(), gig_complete = 2 WHERE gig_id = ?";
     $message = "Gig has been successfully ended.";
 } else {
     // If both time_started and time_ended are already set, do nothing

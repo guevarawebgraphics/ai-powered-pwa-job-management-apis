@@ -75,7 +75,9 @@ if ($result->num_rows === 0) {
 
         $machine_stmt = $dbConn->prepare($machine_query);
         if ($machine_stmt === false) {
-            die("Prepare failed: " . $dbConn->error);
+            // die("Prepare failed: " . $dbConn->error);
+            echo json_encode(["status" => "error", "message" => $dbConn->error]);
+            exit;
         }
 
         $types = str_repeat('i', count($machine_ids));
