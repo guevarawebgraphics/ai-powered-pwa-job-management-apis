@@ -58,6 +58,7 @@ $sql = "
         g.extra_field2 AS gig_extra_field2,
         g.created_at,
         g.updated_at,
+        g.youtube_link,
 
         c.client_id,
         c.client_name,

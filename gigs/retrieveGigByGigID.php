@@ -30,7 +30,7 @@ $sql = "
         g.child_of_gig, g.invoice_paid, g.gig_complete, g.parts_used, 
         g.time_started, g.time_ended, g.extra_field1 AS gig_extra_field1, 
         g.extra_field2 AS gig_extra_field2, g.created_at, g.updated_at,
-        g.gig_report_images,
+        g.gig_report_images, g.youtube_link
 
         c.client_id, c.client_name, c.client_last_name, c.insurance_plan, 
         c.email AS client_email, c.other_emails, c.phone_number AS client_phone_number, 
