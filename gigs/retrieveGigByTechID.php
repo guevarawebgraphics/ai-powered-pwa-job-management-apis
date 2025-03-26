@@ -42,6 +42,7 @@ $sql = "
         g.initial_issue,
         g.top_recommended_repairs,
         g.gig_price,
+        g.gig_price_detail,
         g.gig_discount,
         g.trainee_included,
         g.resolution,
