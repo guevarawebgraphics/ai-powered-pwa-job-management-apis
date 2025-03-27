@@ -77,7 +77,7 @@ $sql = "
     FROM gigs g
     INNER JOIN clients c ON g.client_id = c.client_id
     INNER JOIN users u ON g.assigned_tech_id = u.id
-    WHERE g.assigned_tech_id = ? " . ($date_filter ? "AND DATE(g.created_at) = ?" : "AND DATE(g.created_at) = CURDATE()") . " AND g.gig_complete != 3
+    WHERE g.assigned_tech_id = ? " . ($date_filter ? "AND DATE(g.start_datetime) = ?" : "AND DATE(g.start_datetime) = CURDATE()") . " AND g.gig_complete != 3
     ORDER BY g.start_datetime DESC
 ";
 

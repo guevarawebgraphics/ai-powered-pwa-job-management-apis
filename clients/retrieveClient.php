@@ -64,6 +64,34 @@ if ($result->num_rows === 0) {
     }
     $gig_stmt->close();
 
+
+
+
+    // Separate query to get total gig price
+    $total_price_query = "SELECT SUM(gig_price) AS client_total_gig_price FROM `gigs` WHERE `client_id` = ?";
+    $total_price_stmt = $dbConn->prepare($total_price_query);
+    if ($total_price_stmt === false) {
+        echo json_encode(["status" => "error", "message" => $dbConn->error]);
+    }
+
+    $total_price_stmt->bind_param("i", $client_id);
+    $total_gig_price = 0; // Default value
+
+    if ($total_price_stmt->execute()) {
+        $total_price_result = $total_price_stmt->get_result();
+        $total_price_row = $total_price_result->fetch_assoc();
+        $total_gig_price = $total_price_row['client_total_gig_price'] ?? 0; // Default to 0 if NULL
+    }
+
+    $total_price_stmt->close();
+
+    // Add total gig price to the response
+    $client['client_total_gig_price'] = $total_gig_price;
+
+
+
+
+
     // Extract appliances_owned (assuming comma-separated machine IDs)
     $machine_ids = array_filter(array_map('intval', explode(',', $client['appliances_owned'])));
 

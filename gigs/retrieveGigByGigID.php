@@ -93,6 +93,22 @@ if (!empty($modelNumbers)) {
     }
 }
 
+
+
+$client_id = $gig['client_id']; // Extract client_id
+// Total Gig Price Per Client
+$total_price_query = "SELECT SUM(gig_price) AS client_total_gig_price FROM gigs WHERE client_id = ?";
+$total_price_stmt = $dbConn->prepare($total_price_query);
+$total_price_stmt->bind_param("i", $client_id);
+$total_price_stmt->execute();
+$total_price_result = $total_price_stmt->get_result();
+$total_price_row = $total_price_result->fetch_assoc();
+$total_gig_price = $total_price_row['client_total_gig_price'] ?? 0; // Default to 0 if NULL
+$total_price_stmt->close();
+// Add total_gig_price to response
+$gig['client_total_gig_price'] = $total_gig_price;
+
+
 // Return JSON response
 echo json_encode(["status" => "success", "data" => $gigs], JSON_PRETTY_PRINT);
 ?>
