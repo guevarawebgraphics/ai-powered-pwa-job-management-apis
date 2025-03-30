@@ -65,8 +65,6 @@ if ($result->num_rows === 0) {
     $gig_stmt->close();
 
 
-
-
     // Separate query to get total gig price
     $total_price_query = "SELECT SUM(gig_price) AS client_total_gig_price FROM `gigs` WHERE `client_id` = ?";
     $total_price_stmt = $dbConn->prepare($total_price_query);

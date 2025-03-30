@@ -27,9 +27,18 @@ if (!isset($input_data['techID']) || !is_numeric($input_data['techID'])) {
 $dbConn->set_charset("utf8mb4");
 
 $technician = intval($input_data['techID']);
-$date_filter = isset($input_data['date']) && !empty($input_data['date']) ? $input_data['date'] : null;
 
-// Adjust SQL query based on whether the date is provided
+// Use provided date or default to current date if not provided
+$date_filter = isset($input_data['date']) && !empty($input_data['date'])
+    ? $input_data['date']
+    : date('Y-m-d');
+
+// Optionally use provided time filter (should be in 24-hour format, e.g., "14:30")
+$time_filter = isset($input_data['time']) && !empty($input_data['time'])
+    ? $input_data['time']
+    : null;
+
+// Start building the SQL query
 $sql = "
     SELECT 
         g.gig_id,
@@ -73,21 +82,29 @@ $sql = "
         u.id AS tech_id,
         u.name AS tech_name,
         u.email AS tech_email
-
     FROM gigs g
     INNER JOIN clients c ON g.client_id = c.client_id
     INNER JOIN users u ON g.assigned_tech_id = u.id
-    WHERE g.assigned_tech_id = ? " . ($date_filter ? "AND DATE(g.start_datetime) = ?" : "AND DATE(g.start_datetime) = CURDATE()") . " AND g.gig_complete != 3
-    ORDER BY g.start_datetime DESC
+    WHERE g.assigned_tech_id = ? 
 ";
+
+// If time filter is provided, you might want to show all gigs from today that have a start_datetime
+// time greater than or equal to the provided time. Otherwise, filter only by the date.
+if ($time_filter) {
+    $sql .= "AND DATE(g.start_datetime) = ? AND TIME(g.start_datetime) >= ? ";
+} else {
+    $sql .= "AND DATE(g.start_datetime) = ? ";
+}
+
+$sql .= "AND g.gig_complete != 3
+    ORDER BY g.start_datetime DESC";
 
 $stmt = $dbConn->prepare($sql);
 
-// Bind parameters dynamically
-if ($date_filter) {
-    $stmt->bind_param("is", $technician, $date_filter);
+if ($time_filter) {
+    $stmt->bind_param("iss", $technician, $date_filter, $time_filter);
 } else {
-    $stmt->bind_param("i", $technician);
+    $stmt->bind_param("is", $technician, $date_filter);
 }
 
 $stmt->execute();
