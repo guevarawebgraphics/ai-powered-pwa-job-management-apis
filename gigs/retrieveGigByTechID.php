@@ -100,7 +100,7 @@ if ($date_filter == $current_date) {
 }
 
 $sql .= " AND g.gig_complete != 3
-          ORDER BY g.start_datetime DESC ";
+          ORDER BY g.start_datetime ASC ";
 
 if (isset($input_data['total_records']) && is_numeric($input_data['total_records'])) {
     $total_records = intval($input_data['total_records']);
