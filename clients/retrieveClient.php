@@ -24,7 +24,7 @@ $client_id = intval($input_data['client_id']);
 
 // Retrieve client details
 $sql = "SELECT 
-            `client_id`, `client_name`, `insurance_plan`, `email`, `other_emails`,
+            `client_id`, `client_name`,`client_last_name`, `insurance_plan`, `email`, `other_emails`,
             `phone_number`, `other_phone_numbers`, `street_address`, `city`,
             `zip_code`, `state`, `country`, `client_notes`, `appliances_owned`,
             `maintenance_plan`, `payee_id`, `extra_field1`, `extra_field2`
