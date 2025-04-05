@@ -23,7 +23,7 @@ if (!isset($input_data['techID']) || !is_numeric($input_data['techID'])) {
 
 $dbConn->set_charset("utf8mb4");
 
-$technician = intval($input_data['techID']);
+$technician = $input_data['techID'];
 $date_filter = (isset($input_data['date']) && !empty($input_data['date']))
     ? $input_data['date']
     : date('Y-m-d');
@@ -80,7 +80,7 @@ $sql = "SELECT
         INNER JOIN clients c ON g.client_id = c.client_id
         INNER JOIN users u ON g.assigned_tech_id = u.id
         WHERE g.assigned_tech_id = ? ";
-$bind_types .= "i";
+$bind_types .= "s";
 $bind_params[] = $technician;
 
 if ($date_filter == $current_date) {
