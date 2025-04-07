@@ -63,6 +63,7 @@ $sql = "SELECT
             g.created_at,
             g.updated_at,
             g.youtube_link,
+            g.gig_type,
 
             c.client_id,
             c.client_name,
@@ -71,11 +72,14 @@ $sql = "SELECT
             c.phone_number AS client_phone_number,
             c.street_address,
             c.city,
+            c.insurance_plan,
+            c.maintenance_plan,
             c.state,
 
             u.id AS tech_id,
             u.name AS tech_name,
-            u.email AS tech_email
+            u.email AS tech_email,
+            u.rank_type AS tech_rank_type
         FROM gigs g
         INNER JOIN clients c ON g.client_id = c.client_id
         INNER JOIN users u ON g.assigned_tech_id = u.id
