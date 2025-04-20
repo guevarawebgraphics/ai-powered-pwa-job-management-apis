@@ -36,7 +36,9 @@ $sql = "SELECT
             machine_type,
             machine_notes,
             extra_field1,
-            extra_field2
+            extra_field2,
+            vector_id,
+            vector_files
         FROM machines
         WHERE model_number = ?";
 
