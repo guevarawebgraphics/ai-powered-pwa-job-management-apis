@@ -45,7 +45,7 @@ $sql = "
         p.payee_relation, p.extra_field1 AS payee_extra_field1, 
         p.extra_field2 AS payee_extra_field2,
 
-        u.id AS tech_id, u.role_id, u.name AS tech_name, u.email AS tech_email, u.rank_type AS tech_rank_type,
+        u.id AS tech_id, u.role_id, u.name AS tech_name, u.first_name AS tech_first_name, u.last_name AS tech_last_name, u.email AS tech_email, u.rank_type AS tech_rank_type,
         u.mobile_no AS tech_phone_number
 
     FROM gigs g
